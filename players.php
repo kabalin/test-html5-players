@@ -24,10 +24,25 @@ $datasources = array(
         'type' => 'video',
         'sources' => array('video/flash' => 'http://stream.flowplayer.org/flowplayer-700.flv'),
     ),
+    'rtmp' => array(
+        'displayname' => 'RTMP/HLS',
+        'attributes' => array('data-rtmp' => 'rtmp://stream.blacktrash.org/cfx/st/'),
+        'type' => 'video',
+        'sources' => array(
+            'application/x-mpegURL' => 'http://media.blacktrash.org/stsp.m3u8',
+            'video/x-flv' => 'mp4:stsp',
+        ),
+    ),
 );
 
 function get_player_instance($data) {
-    $output = "<div class=\"player_${data['name']}\" style=\"width: 624px; height: 260px;\">\n";
+    $attrs = array();
+    if (isset($data['attributes'])) {
+        foreach ($data['attributes'] as $attrname => $attrvalue) {
+            $attrs[] = "$attrname=\"$attrvalue\"";
+        }
+    }
+    $output = "<div class=\"player_${data['name']}\" style=\"width: 624px; height: 260px;\" " . implode(' ', $attrs) . ">\n";
     $output .= "    <${data['type']} controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
     foreach ($data['sources'] as $mime => $src) {
         $output .= "        <source type=\"$mime\" src=\"$src\">\n";
@@ -108,9 +123,12 @@ function native_script() {
         <h2><?php echo ucfirst($player); ?></h2>
     <?php
     foreach ($datasources as $name => $data) {
-        $data['name'] = $name; ?>
+        $data['name'] = $name;
+        if (!isset($data['displayname'])) {
+            $data['displayname'] = $name;
+        } ?>
         <div class="player_instance">
-            <p><?php echo strtoupper($name);?></p>
+            <p><?php echo strtoupper($data['displayname']);?></p>
             <?php output_player_instance($data); ?>
             <p class="info">&nbsp;</p>
             <pre><code><?php output_player_instance_code($data); ?></code></pre>
@@ -118,16 +136,6 @@ function native_script() {
     <?php
     } ?>
 
-    <div class="player_instance">
-        <p>RTMP/HLS</p>
-        <div class="player_rtmp" style="width: 624px; height: 260px;" data-rtmp="rtmp://tes-ams.lancs.ac.uk/public/_definst_/">
-            <video controls width="624" height="260" preload="metadata">
-                <source type="application/x-mpegurl" src="http://tes-ams.lancs.ac.uk:8134/hls-public/users/cpadai/big_buck_bunny/big_buck_bunny_720p_1mbps.f4v.m3u8">
-                <source type="video/flash" src="mp4:users/cpadai/big_buck_bunny/big_buck_bunny_720p_1mbps.f4v">
-            </video>
-        </div>
-        <p class="info">&nbsp;</p>
-    </div>
     <!--<div class="player_instance">
         <p>MP3</p>
         <div class="flowplayer_mp3">
