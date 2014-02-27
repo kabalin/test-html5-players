@@ -100,6 +100,9 @@ function native_script() {
                margin: 1em 0 0 0;
            }
        </style>
+       <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
+       <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+       <script>hljs.initHighlightingOnLoad();</script>
     </head>
     <body>
         <h2><?php echo ucfirst($player); ?></h2>
@@ -110,7 +113,7 @@ function native_script() {
             <p><?php echo strtoupper($name);?></p>
             <?php output_player_instance($data); ?>
             <p class="info">&nbsp;</p>
-            <pre><?php output_player_instance_code($data); ?></pre>
+            <pre><code><?php output_player_instance_code($data); ?></code></pre>
         </div>
     <?php
     } ?>
