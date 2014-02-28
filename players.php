@@ -1,7 +1,7 @@
 <?php
 $player = $_GET['player'];
 
-$players = array('flowplayer');
+$players = array('flowplayer', 'videojs');
 
 if (empty($player) || !in_array($player, $players)) {
     $player = 'native';
@@ -43,7 +43,7 @@ function get_player_instance($data) {
         }
     }
     $output = "<div class=\"player_${data['name']}\" style=\"width: 624px; height: 260px;\" " . implode(' ', $attrs) . ">\n";
-    $output .= "    <${data['type']} controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
+    $output .= "    <${data['type']} id=\"player_${data['name']}\" controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
     foreach ($data['sources'] as $mime => $src) {
         $output .= "        <source type=\"$mime\" src=\"$src\">\n";
     }
@@ -72,6 +72,16 @@ EOF;
     echo $head;
 }
 
+function videojs_head() {
+    $head = <<<EOF
+        <title>Video.JS</title>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//vjs.zencdn.net/4.4/video.js"></script>
+        <link href="//vjs.zencdn.net/4.4/video-js.css" rel="stylesheet">
+EOF;
+    echo $head;
+}
+
 function native_head() {
     $head = <<<EOF
         <title>Native</title>
@@ -89,6 +99,22 @@ function flowplayer_script() {
                     $(".player_" + exts[i]).flowplayer();
                     var api = $(".player_" + exts[i]).data("flowplayer");
                     $(".player_" + exts[i]).next().text('Engine in use: ' + api.engine);
+                }
+            });
+        </script>
+EOF;
+    echo $head;
+}
+
+function videojs_script() {
+    $head = <<<EOF
+        <script>
+            $(function () {
+                var exts = ['mp4', 'webm', 'ogg', 'flv'];
+
+                for(var i = 0; i < exts.length; i++) {
+                    $("#player_" + exts[i]).attr('class', 'video-js vjs-default-skin vjs-big-play-centered');
+                    videojs($("#player_" + exts[i])[0], {}, function(){});
                 }
             });
         </script>
@@ -117,7 +143,9 @@ function native_script() {
        </style>
        <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
        <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
-       <script>hljs.initHighlightingOnLoad();</script>
+       <script>
+           hljs.initHighlightingOnLoad();
+       </script>
     </head>
     <body>
         <h2><?php echo ucfirst($player); ?></h2>
