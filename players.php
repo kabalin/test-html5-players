@@ -33,6 +33,11 @@ $datasources = array(
             'video/x-flv' => 'mp4:stsp',
         ),
     ),
+    'mp3' => array(
+        'type' => 'audio',
+        'sources' => array('audio/mpeg' => 'http://releases.flowplayer.org/data/fake_empire.mp3'),
+    ),
+
 );
 
 function get_player_instance($data) {
@@ -110,7 +115,7 @@ function videojs_script() {
     $head = <<<EOF
         <script>
             $(function () {
-                var exts = ['mp4', 'webm', 'ogg', 'flv'];
+                var exts = ['mp4', 'webm', 'ogg', 'flv', 'mp3'];
 
                 for(var i = 0; i < exts.length; i++) {
                     $("#player_" + exts[i]).attr('class', 'video-js vjs-default-skin vjs-big-play-centered');
