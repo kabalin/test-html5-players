@@ -1,7 +1,7 @@
 <?php
 $player = $_GET['player'];
 
-$players = array('flowplayer', 'videojs');
+$players = array('flowplayer', 'videojs', 'projekktor');
 
 if (empty($player) || !in_array($player, $players)) {
     $player = 'native';
@@ -41,6 +41,7 @@ $datasources = array(
 );
 
 function get_player_instance($data) {
+    global $player;
     $attrs = array();
     if (isset($data['attributes'])) {
         foreach ($data['attributes'] as $attrname => $attrvalue) {
@@ -48,7 +49,7 @@ function get_player_instance($data) {
         }
     }
     $output = "<div class=\"player_${data['name']}\" style=\"width: 624px; height: 260px;\" " . implode(' ', $attrs) . ">\n";
-    $output .= "    <${data['type']} id=\"player_${data['name']}\" controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
+    $output .= "    <${data['type']} id=\"player_${data['name']}\" class=\"$player\" controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
     foreach ($data['sources'] as $mime => $src) {
         $output .= "        <source type=\"$mime\" src=\"$src\">\n";
     }
@@ -83,6 +84,16 @@ function videojs_head() {
         <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="//vjs.zencdn.net/4.4/video.js"></script>
         <link href="//vjs.zencdn.net/4.4/video-js.css" rel="stylesheet">
+EOF;
+    echo $head;
+}
+
+function projekktor_head() {
+    $head = <<<EOF
+        <title>Projector</title>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="projekktor/projekktor-1.3.09.min.js"></script>
+        <link rel="stylesheet" href="projekktor/themes/maccaco/projekktor.style.css" type="text/css" media="screen" />
 EOF;
     echo $head;
 }
@@ -122,6 +133,45 @@ function videojs_script() {
                     videojs($("#player_" + exts[i])[0], {}, function(){});
                 }
             });
+        </script>
+EOF;
+    echo $head;
+}
+
+function projekktor_script() {
+    global $datasources;
+    $rtmp_src = $datasources['rtmp']['attributes']['data-rtmp'] . $datasources['rtmp']['sources']['video/x-flv'];
+    $head = <<<EOF
+        <script>
+            $(function () {
+                var exts = ['mp4', 'webm', 'ogg', 'flv', 'rtmp', 'mp3'];
+
+                for(var i = 0; i < exts.length; i++) {
+                    var settings = {
+                        playerFlashMP4: 'projekktor/swf/StrobeMediaPlayback/StrobeMediaPlayback.swf',
+                        playerFlashMP3: 'projekktor/swf/StrobeMediaPlayback/StrobeMediaPlayback.swf',
+                        platforms: ['browser', 'ios', 'android', 'flash', 'native'],
+                    };
+
+                    // RTMP only via playlist in Projekktor
+                    if (exts[i] == 'rtmp') {
+                        settings.playlist = [{
+                            0: {src: "$rtmp_src", type: "video/x-flv", streamType: 'rtmp'}
+                        }]
+                    }
+
+                    projekktor("#player_" + exts[i], settings, function(player) {
+                        player.addListener('ready', readyListener);
+                    });
+                }
+            });
+            var readyListener = function(value, ref) {
+                if ($('#' + ref.getId()).find('video,audio').length > 0) {
+                    $("#" + ref.getId()).parent().next().text('Engine in use: html5');
+                } else {
+                    $("#" + ref.getId()).parent().next().text('Engine in use: flash');
+                }
+            }
         </script>
 EOF;
     echo $head;
@@ -168,16 +218,6 @@ function native_script() {
         </div>
     <?php
     } ?>
-
-    <!--<div class="player_instance">
-        <p>MP3</p>
-        <div class="flowplayer_mp3">
-            <audio controls>
-                <source type="audio/mpeg" src="http://releases.flowplayer.org/data/fake_empire.mp3">
-            </audio>
-        </div>
-        <p class="info">&nbsp;</p>
-    </div>--->
     <?php call_user_func($player . '_script'); ?>
     </body>
 </html>
