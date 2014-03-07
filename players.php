@@ -78,7 +78,6 @@ function flowplayer_head() {
     $head = <<<EOF
         <title>Flowplayer HTML5</title>
         <link rel="stylesheet" href="//releases.flowplayer.org/5.4.6/skin/functional.css">
-        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="//releases.flowplayer.org/5.4.6/flowplayer.min.js"></script>
 EOF;
     echo $head;
@@ -87,7 +86,6 @@ EOF;
 function videojs_head() {
     $head = <<<EOF
         <title>Video.JS</title>
-        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="//vjs.zencdn.net/4.4/video.js"></script>
         <link href="//vjs.zencdn.net/4.4/video-js.css" rel="stylesheet">
 EOF;
@@ -97,7 +95,6 @@ EOF;
 function projekktor_head() {
     $head = <<<EOF
         <title>Projector</title>
-        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
         <script type="text/javascript" src="projekktor/projekktor-1.3.09.min.js"></script>
         <link rel="stylesheet" href="projekktor/themes/maccaco/projekktor.style.css" type="text/css" media="screen" />
 EOF;
@@ -196,6 +193,7 @@ function native_script() {
 <html>
     <head>
        <meta charset="utf-8">
+       <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
        <?php call_user_func($player . '_head'); ?>
        <style>
            .player_instance {
@@ -207,14 +205,29 @@ function native_script() {
                margin: 1em 0 0 0;
            }
        </style>
-       <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/default.min.css">
-       <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+       <link rel="stylesheet" href="//yandex.st/highlightjs/8.0/styles/default.min.css">
+       <script src="//yandex.st/highlightjs/8.0/highlight.min.js"></script>
        <script>
            hljs.initHighlightingOnLoad();
+           $(function () {
+                $('#player_selector select').change(function(){
+                    $('#player_selector').submit();
+                });
+           });
        </script>
     </head>
     <body>
         <h2><?php echo ucfirst($player); ?></h2>
+        <form id="player_selector"><select name="player">
+            <?php
+            foreach ($players as $playername) {
+                $selected = '';
+                if ($playername == $player) {
+                    $selected = 'selected';
+                }
+                echo '<option value="' . $playername . '" ' . $selected . '>' . ucfirst($playername) . '</option>';
+            } ?>
+        </select></form>
     <?php
     foreach ($datasources as $name => $data) {
         $data['name'] = $name;
