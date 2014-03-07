@@ -36,6 +36,7 @@ $datasources = array(
     'mp3' => array(
         'type' => 'audio',
         'sources' => array('audio/mpeg' => 'http://releases.flowplayer.org/data/fake_empire.mp3'),
+        'ignored' => array('flowplayer'),
     ),
 
 );
@@ -233,7 +234,11 @@ function native_script() {
         $data['name'] = $name;
         if (!isset($data['displayname'])) {
             $data['displayname'] = $name;
-        } ?>
+        }
+        if (isset($data['ignored']) && in_array($player, $data['ignored'])) {
+            continue;
+        }
+        ?>
         <div class="player_instance">
             <p><?php echo strtoupper($data['displayname']);?></p>
             <?php output_player_instance($data); ?>
