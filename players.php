@@ -48,9 +48,15 @@ function get_player_instance($data) {
             $attrs[] = "$attrname=\"$attrvalue\"";
         }
     }
+
     $output = "<div class=\"player_${data['name']}\" style=\"width: 624px; height: 260px;\" " . implode(' ', $attrs) . ">\n";
     $output .= "    <${data['type']} id=\"player_${data['name']}\" class=\"$player\" controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
     foreach ($data['sources'] as $mime => $src) {
+        // VideoJS require RTMP src of specific format
+        if ($player == 'videojs' && $data['name'] == 'rtmp' && $mime == 'video/x-flv') {
+            $src = $data['attributes']['data-rtmp'] . '&' . $src;
+            $mime = 'rtmp/flv';
+        }
         $output .= "        <source type=\"$mime\" src=\"$src\">\n";
     }
     $output .= "    </${data['type']}>\n";
@@ -126,11 +132,16 @@ function videojs_script() {
     $head = <<<EOF
         <script>
             $(function () {
-                var exts = ['mp4', 'webm', 'ogg', 'flv', 'mp3'];
+                var exts = ['mp4', 'webm', 'ogg', 'flv', 'rtmp', 'mp3'];
 
                 for(var i = 0; i < exts.length; i++) {
+                    $(".player_" + exts[i]).next().text('Engine in use: flash');
                     $("#player_" + exts[i]).attr('class', 'video-js vjs-default-skin vjs-big-play-centered');
-                    videojs($("#player_" + exts[i])[0], {}, function(){});
+                    videojs($("#player_" + exts[i])[0], {}, function(){
+                        if ($("#player_" + exts[i]).find('video,audio').length > 0) {
+                            $(".player_" + exts[i]).next().text('Engine in use: html5');
+                        }
+                    });
                 }
             });
         </script>
