@@ -20,7 +20,7 @@
 //
 $player = $_GET['player'];
 
-$players = array('flowplayer', 'videojs', 'projekktor');
+$players = array('native', 'flowplayer', 'videojs', 'projekktor');
 
 if (empty($player) || !in_array($player, $players)) {
     $player = 'native';
