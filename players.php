@@ -22,7 +22,7 @@ $datasources = array(
     ),
     'flv' => array(
         'type' => 'video',
-        'sources' => array('video/flash' => 'http://stream.flowplayer.org/flowplayer-700.flv'),
+        'sources' => array('video/x-flv' => 'http://stream.flowplayer.org/flowplayer-700.flv'),
     ),
     'rtmp' => array(
         'displayname' => 'RTMP/HLS',
