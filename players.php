@@ -20,7 +20,7 @@
 //
 $player = $_GET['player'];
 
-$players = array('native', 'flowplayer', 'videojs', 'projekktor');
+$players = array('native', 'flowplayer', 'videojs', 'projekktor', 'mediaelementjs');
 
 if (empty($player) || !in_array($player, $players)) {
     $player = 'native';
@@ -73,7 +73,7 @@ function get_player_instance($data) {
     $output .= "    <${data['type']} id=\"player_${data['name']}\" class=\"$player\" controls width=\"624\" height=\"260\" preload=\"metadata\">\n";
     foreach ($data['sources'] as $mime => $src) {
         // VideoJS require RTMP src of specific format
-        if ($player == 'videojs' && $data['name'] == 'rtmp' && $mime == 'video/x-flv') {
+        if (in_array($player, array('videojs', 'mediaelementjs')) && $data['name'] == 'rtmp' && $mime == 'video/x-flv') {
             $src = $data['attributes']['data-rtmp'] . '&' . $src;
             $mime = 'rtmp/flv';
         }
@@ -117,6 +117,15 @@ function projekktor_head() {
         <title>Projector</title>
         <script type="text/javascript" src="projekktor/projekktor-1.3.09.min.js"></script>
         <link rel="stylesheet" href="projekktor/themes/maccaco/projekktor.style.css" type="text/css" media="screen" />
+EOF;
+    echo $head;
+}
+
+function mediaelementjs_head() {
+    $head = <<<EOF
+        <title>MediaElement.js</title>
+        <script src="http://mediaelementjs.com/js/mejs-2.16.4/mediaelement-and-player.min.js"></script>
+        <link rel="stylesheet" href="http://mediaelementjs.com/js/mejs-2.16.4/mediaelementplayer.min.css" type="text/css" />
 EOF;
     echo $head;
 }
@@ -200,6 +209,21 @@ function projekktor_script() {
                     $("#" + ref.getId()).parent().next().text('Engine in use: flash');
                 }
             }
+        </script>
+EOF;
+    echo $head;
+}
+
+function mediaelementjs_script() {
+    $head = <<<EOF
+        <script>
+            $(function () {
+                var exts = ['mp4', 'webm', 'ogg', 'flv', 'rtmp', 'mp3'];
+
+                for(var i = 0; i < exts.length; i++) {
+                    $("#player_" + exts[i]).mediaelementplayer({success: function(mediaElement, originalNode) {}});
+                }
+            });
         </script>
 EOF;
     echo $head;
