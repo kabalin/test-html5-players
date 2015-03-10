@@ -124,8 +124,8 @@ EOF;
 function mediaelementjs_head() {
     $head = <<<EOF
         <title>MediaElement.js</title>
-        <script src="http://mediaelementjs.com/js/mejs-2.16.4/mediaelement-and-player.min.js"></script>
-        <link rel="stylesheet" href="http://mediaelementjs.com/js/mejs-2.16.4/mediaelementplayer.min.css" type="text/css" />
+        <script src="mediaelement/build/mediaelement-and-player.min.js"></script>
+        <link rel="stylesheet" href="mediaelement/build/mediaelementplayer.min.css" type="text/css" />
 EOF;
     echo $head;
 }
